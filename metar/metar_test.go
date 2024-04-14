@@ -2,6 +2,7 @@ package metar_test
 
 import (
 	"encoding/json"
+	"os"
 	"reflect"
 	"testing"
 	"time"
@@ -32,9 +33,11 @@ func TestUnmarshalMETAR(t *testing.T) {
 				ReportTime:      metar.Time(time.Date(2024, 4, 14, 14, 0, 0, 0, time.UTC)),
 				Temperature:     11.7,
 				Dewpoint:        -0.6,
-				WindDirection:   260,
-				WindSpeed:       10,
-				WindGust:        15,
+				WindDirection: metar.WindDirection{
+					From: 260,
+				},
+				WindSpeed: 10,
+				WindGust:  15,
 				Visibility: metar.Visibility{
 					Visibility:  10,
 					GreaterThan: true,
@@ -81,9 +84,11 @@ func TestUnmarshalMETAR(t *testing.T) {
 				ReportTime:      metar.Time(time.Date(2024, 4, 14, 14, 35, 0, 0, time.UTC)),
 				Temperature:     17,
 				Dewpoint:        15,
-				WindDirection:   160,
-				WindSpeed:       9,
-				WindGust:        16,
+				WindDirection: metar.WindDirection{
+					From: 160,
+				},
+				WindSpeed: 9,
+				WindGust:  16,
 				Visibility: metar.Visibility{
 					Visibility:  10,
 					GreaterThan: true,
@@ -130,9 +135,11 @@ func TestUnmarshalMETAR(t *testing.T) {
 				ReportTime:      metar.Time(time.Date(2024, 4, 14, 14, 48, 0, 0, time.UTC)),
 				Temperature:     7,
 				Dewpoint:        7,
-				WindDirection:   0,
-				WindSpeed:       0,
-				WindGust:        0,
+				WindDirection: metar.WindDirection{
+					From: 0,
+				},
+				WindSpeed: 0,
+				WindGust:  0,
 				Visibility: metar.Visibility{
 					Visibility:  0.25,
 					GreaterThan: false,
@@ -179,9 +186,11 @@ func TestUnmarshalMETAR(t *testing.T) {
 				ReportTime:      metar.Time(time.Date(2024, 4, 14, 14, 0, 0, 0, time.UTC)),
 				Temperature:     21.1,
 				Dewpoint:        16.1,
-				WindDirection:   200,
-				WindSpeed:       7,
-				WindGust:        0,
+				WindDirection: metar.WindDirection{
+					From: 200,
+				},
+				WindSpeed: 7,
+				WindGust:  0,
 				Visibility: metar.Visibility{
 					Visibility:  10,
 					GreaterThan: true,
@@ -228,9 +237,11 @@ func TestUnmarshalMETAR(t *testing.T) {
 				ReportTime:      metar.Time(time.Date(2024, 4, 14, 15, 12, 0, 0, time.UTC)),
 				Temperature:     -24,
 				Dewpoint:        -26,
-				WindDirection:   230,
-				WindSpeed:       15,
-				WindGust:        0,
+				WindDirection: metar.WindDirection{
+					From: 230,
+				},
+				WindSpeed: 15,
+				WindGust:  0,
 				Visibility: metar.Visibility{
 					Visibility:  3,
 					GreaterThan: false,
@@ -277,9 +288,11 @@ func TestUnmarshalMETAR(t *testing.T) {
 				ReportTime:      metar.Time(time.Date(2024, 4, 14, 15, 22, 0, 0, time.UTC)),
 				Temperature:     -3,
 				Dewpoint:        -3,
-				WindDirection:   260,
-				WindSpeed:       4,
-				WindGust:        0,
+				WindDirection: metar.WindDirection{
+					From: 260,
+				},
+				WindSpeed: 4,
+				WindGust:  0,
 				Visibility: metar.Visibility{
 					Visibility:  0.25,
 					GreaterThan: false,
@@ -326,9 +339,11 @@ func TestUnmarshalMETAR(t *testing.T) {
 				ReportTime:      metar.Time(time.Date(2024, 4, 14, 15, 0, 0, 0, time.UTC)),
 				Temperature:     11.7,
 				Dewpoint:        6.7,
-				WindDirection:   180,
-				WindSpeed:       9,
-				WindGust:        0,
+				WindDirection: metar.WindDirection{
+					From: 180,
+				},
+				WindSpeed: 9,
+				WindGust:  0,
 				Visibility: metar.Visibility{
 					Visibility:  10,
 					GreaterThan: true,
@@ -376,6 +391,61 @@ func TestUnmarshalMETAR(t *testing.T) {
 				},
 			},
 		},
+		{
+			name: "CZSJ",
+			json: `{"metar_id":529762587,"icaoId":"CZSJ","receiptTime":"2024-04-14 16:11:32","obsTime":1713111000,"reportTime":"2024-04-14 16:10:00","temp":3,"dewp":2,"wdir":"VRB","wspd":2,"wgst":null,"visib":9,"altim":1008.2,"slp":1009.8,"qcField":2,"wxString":"-RA","presTend":null,"maxT":null,"minT":null,"maxT24":null,"minT24":null,"precip":null,"pcp3hr":null,"pcp6hr":null,"pcp24hr":null,"snow":null,"vertVis":null,"metarType":"SPECI","rawOb":"CZSJ 141610Z AUTO VRB02KT 9SM -RA FEW007 OVC015 03/02 A2977 RMK SLP098","mostRecent":1,"lat":53.063,"lon":-93.344,"elev":286,"prior":4,"name":"Sandy Lake Arpt, ON, CA","clouds":[{"cover":"FEW","base":700},{"cover":"OVC","base":1500}]}`,
+			exp: metar.METAR{
+				ID:              529762587,
+				ICAOID:          "CZSJ",
+				ReceiptTime:     metar.Time(time.Date(2024, 4, 14, 16, 11, 32, 0, time.UTC)),
+				ObservationTime: metar.Time(time.Unix(1713111000, 0)),
+				ReportTime:      metar.Time(time.Date(2024, 4, 14, 16, 10, 0, 0, time.UTC)),
+				Temperature:     3,
+				Dewpoint:        2,
+				WindDirection: metar.WindDirection{
+					From: 0,
+				},
+				WindSpeed: 2,
+				WindGust:  0,
+				Visibility: metar.Visibility{
+					Visibility:  9,
+					GreaterThan: false,
+				},
+				Altimeter:             1008.2,
+				SeaLevelPressure:      1009.8,
+				QCField:               2,
+				WxString:              "-RA",
+				PressureTendency:      nil,
+				MaxTemperature:        nil,
+				MinTemperature:        nil,
+				MaxTemperature24Hours: nil,
+				MinTemperature24Hours: nil,
+				Precipitation:         nil,
+				Precipitation3Hour:    nil,
+				Precipitation6Hour:    nil,
+				Precipitation24Hour:   nil,
+				Snow:                  nil,
+				VerticalVisibility:    nil,
+				MetarType:             "SPECI",
+				RawObservation:        "CZSJ 141610Z AUTO VRB02KT 9SM -RA FEW007 OVC015 03/02 A2977 RMK SLP098",
+				MostRecent:            1,
+				Latitude:              53.063,
+				Longitude:             -93.344,
+				Elevation:             286,
+				Prior:                 4,
+				Name:                  "Sandy Lake Arpt, ON, CA",
+				Clouds: []metar.CloudLayer{
+					{
+						Cover: "FEW",
+						Base:  floatPtr(700),
+					},
+					{
+						Cover: "OVC",
+						Base:  floatPtr(1500),
+					},
+				},
+			},
+		},
 	}
 
 	for _, f := range fixtures {
@@ -390,6 +460,20 @@ func TestUnmarshalMETAR(t *testing.T) {
 				t.Fatalf("expected %v, got %v", f.exp, m)
 			}
 		})
+	}
+}
+
+func TestUnmarshalMETARHandlesEverything(t *testing.T) {
+
+	bts, err := os.ReadFile("testdata/2024-04-14.json")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	var out []metar.METAR
+
+	if err := json.Unmarshal(bts, &out); err != nil {
+		t.Fatalf("unexpected error: %v", err)
 	}
 }
 
@@ -412,9 +496,11 @@ func TestMETARFlightCategory(t *testing.T) {
 				ReportTime:      metar.Time(time.Date(2024, 4, 14, 14, 0, 0, 0, time.UTC)),
 				Temperature:     11.7,
 				Dewpoint:        -0.6,
-				WindDirection:   260,
-				WindSpeed:       10,
-				WindGust:        15,
+				WindDirection: metar.WindDirection{
+					From: 260,
+				},
+				WindSpeed: 10,
+				WindGust:  15,
 				Visibility: metar.Visibility{
 					Visibility:  10,
 					GreaterThan: true,
@@ -461,9 +547,11 @@ func TestMETARFlightCategory(t *testing.T) {
 				ReportTime:      metar.Time(time.Date(2024, 4, 14, 14, 35, 0, 0, time.UTC)),
 				Temperature:     17,
 				Dewpoint:        15,
-				WindDirection:   160,
-				WindSpeed:       9,
-				WindGust:        16,
+				WindDirection: metar.WindDirection{
+					From: 160,
+				},
+				WindSpeed: 9,
+				WindGust:  16,
 				Visibility: metar.Visibility{
 					Visibility:  10,
 					GreaterThan: true,
@@ -510,9 +598,11 @@ func TestMETARFlightCategory(t *testing.T) {
 				ReportTime:      metar.Time(time.Date(2024, 4, 14, 14, 48, 0, 0, time.UTC)),
 				Temperature:     7,
 				Dewpoint:        7,
-				WindDirection:   0,
-				WindSpeed:       0,
-				WindGust:        0,
+				WindDirection: metar.WindDirection{
+					From: 0,
+				},
+				WindSpeed: 0,
+				WindGust:  0,
 				Visibility: metar.Visibility{
 					Visibility:  0.25,
 					GreaterThan: false,
@@ -559,9 +649,11 @@ func TestMETARFlightCategory(t *testing.T) {
 				ReportTime:      metar.Time(time.Date(2024, 4, 14, 14, 0, 0, 0, time.UTC)),
 				Temperature:     21.1,
 				Dewpoint:        16.1,
-				WindDirection:   200,
-				WindSpeed:       7,
-				WindGust:        0,
+				WindDirection: metar.WindDirection{
+					From: 200,
+				},
+				WindSpeed: 7,
+				WindGust:  0,
 				Visibility: metar.Visibility{
 					Visibility:  10,
 					GreaterThan: true,
@@ -608,9 +700,11 @@ func TestMETARFlightCategory(t *testing.T) {
 				ReportTime:      metar.Time(time.Date(2024, 4, 14, 15, 12, 0, 0, time.UTC)),
 				Temperature:     -24,
 				Dewpoint:        -26,
-				WindDirection:   230,
-				WindSpeed:       15,
-				WindGust:        0,
+				WindDirection: metar.WindDirection{
+					From: 230,
+				},
+				WindSpeed: 15,
+				WindGust:  0,
 				Visibility: metar.Visibility{
 					Visibility:  3,
 					GreaterThan: false,
@@ -657,9 +751,11 @@ func TestMETARFlightCategory(t *testing.T) {
 				ReportTime:      metar.Time(time.Date(2024, 4, 14, 15, 22, 0, 0, time.UTC)),
 				Temperature:     -3,
 				Dewpoint:        -3,
-				WindDirection:   260,
-				WindSpeed:       4,
-				WindGust:        0,
+				WindDirection: metar.WindDirection{
+					From: 260,
+				},
+				WindSpeed: 4,
+				WindGust:  0,
 				Visibility: metar.Visibility{
 					Visibility:  0.25,
 					GreaterThan: false,
@@ -706,9 +802,11 @@ func TestMETARFlightCategory(t *testing.T) {
 				ReportTime:      metar.Time(time.Date(2024, 4, 14, 15, 0, 0, 0, time.UTC)),
 				Temperature:     11.7,
 				Dewpoint:        6.7,
-				WindDirection:   180,
-				WindSpeed:       9,
-				WindGust:        0,
+				WindDirection: metar.WindDirection{
+					From: 180,
+				},
+				WindSpeed: 9,
+				WindGust:  0,
 				Visibility: metar.Visibility{
 					Visibility:  10,
 					GreaterThan: true,

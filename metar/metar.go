@@ -42,41 +42,41 @@ func (c FlightCategory) IsWorseThan(oth FlightCategory) bool {
 }
 
 type METAR struct {
-	ID                    int64        `json:"metar_id"`
-	ICAOID                string       `json:"icaoId"`
-	ReceiptTime           Time         `json:"receiptTime"`
-	ObservationTime       Time         `json:"obsTime"`
-	ReportTime            Time         `json:"reportTime"`
-	Temperature           float64      `json:"temp"`
-	Dewpoint              float64      `json:"dewp"`
-	WindDirection         float64      `json:"wdir"`
-	WindSpeed             float64      `json:"wspd"`
-	WindGust              float64      `json:"wgst"`
-	Visibility            Visibility   `json:"visib"`
-	Altimeter             float64      `json:"altim"`
-	SeaLevelPressure      float64      `json:"slp"`
-	QCField               float64      `json:"qcField"`
-	WxString              string       `json:"wxString"`
-	PressureTendency      *float64     `json:"presTend"`
-	MaxTemperature        *float64     `json:"maxT"`
-	MinTemperature        *float64     `json:"minT"`
-	MaxTemperature24Hours *float64     `json:"maxT24"`
-	MinTemperature24Hours *float64     `json:"minT24"`
-	Precipitation         *float64     `json:"precip"`
-	Precipitation3Hour    *float64     `json:"pcp3hr"`
-	Precipitation6Hour    *float64     `json:"pcp6hr"`
-	Precipitation24Hour   *float64     `json:"pcp24hr"`
-	Snow                  *float64     `json:"snow"`
-	VerticalVisibility    *float64     `json:"vertVis"`
-	MetarType             METARType    `json:"metarType"`
-	RawObservation        string       `json:"rawOb"`
-	MostRecent            float64      `json:"mostRecent"`
-	Latitude              float64      `json:"lat"`
-	Longitude             float64      `json:"lon"`
-	Elevation             float64      `json:"elev"`
-	Prior                 float64      `json:"prior"`
-	Name                  string       `json:"name"`
-	Clouds                []CloudLayer `json:"clouds"`
+	ID                    int64         `json:"metar_id"`
+	ICAOID                string        `json:"icaoId"`
+	ReceiptTime           Time          `json:"receiptTime"`
+	ObservationTime       Time          `json:"obsTime"`
+	ReportTime            Time          `json:"reportTime"`
+	Temperature           float64       `json:"temp"`
+	Dewpoint              float64       `json:"dewp"`
+	WindDirection         WindDirection `json:"wdir"`
+	WindSpeed             float64       `json:"wspd"`
+	WindGust              float64       `json:"wgst"`
+	Visibility            Visibility    `json:"visib"`
+	Altimeter             float64       `json:"altim"`
+	SeaLevelPressure      float64       `json:"slp"`
+	QCField               float64       `json:"qcField"`
+	WxString              string        `json:"wxString"`
+	PressureTendency      *float64      `json:"presTend"`
+	MaxTemperature        *float64      `json:"maxT"`
+	MinTemperature        *float64      `json:"minT"`
+	MaxTemperature24Hours *float64      `json:"maxT24"`
+	MinTemperature24Hours *float64      `json:"minT24"`
+	Precipitation         *float64      `json:"precip"`
+	Precipitation3Hour    *float64      `json:"pcp3hr"`
+	Precipitation6Hour    *float64      `json:"pcp6hr"`
+	Precipitation24Hour   *float64      `json:"pcp24hr"`
+	Snow                  *float64      `json:"snow"`
+	VerticalVisibility    *float64      `json:"vertVis"`
+	MetarType             METARType     `json:"metarType"`
+	RawObservation        string        `json:"rawOb"`
+	MostRecent            float64       `json:"mostRecent"`
+	Latitude              float64       `json:"lat"`
+	Longitude             float64       `json:"lon"`
+	Elevation             float64       `json:"elev"`
+	Prior                 float64       `json:"prior"`
+	Name                  string        `json:"name"`
+	Clouds                []CloudLayer  `json:"clouds"`
 }
 
 func (m METAR) FlightCategory() FlightCategory {
@@ -253,4 +253,49 @@ func (t *Time) UnmarshalJSON(b []byte) error {
 	}
 	*t = Time(tt.UTC())
 	return nil
+}
+
+type WindDirection struct {
+	From     int32 `json:"fm"`
+	Variable bool  `json:"vrb"`
+}
+
+func (wd WindDirection) String() string {
+	if wd.Variable {
+		return "VRB"
+	}
+	return strconv.Itoa(int(wd.From))
+}
+
+func (wd *WindDirection) UnmarshalJSON(b []byte) error {
+	if string(b) == "null" {
+		return nil
+	}
+	if b[0] != '"' {
+		return json.Unmarshal(b, &wd.From)
+	}
+	var s string
+	if err := json.Unmarshal(b, &s); err != nil {
+		return err
+	}
+	if s == "" {
+		return nil
+	}
+	if s == "VRB" {
+		wd.Variable = true
+		return nil
+	}
+	i, err := strconv.Atoi(s)
+	if err != nil {
+		return err
+	}
+	wd.From = int32(i)
+	return nil
+}
+
+func (wd WindDirection) MarshalJSON() ([]byte, error) {
+	if wd.Variable {
+		return []byte(`"VRB"`), nil
+	}
+	return json.Marshal(wd.From)
 }
