@@ -89,3 +89,14 @@ func Initialize() {
 		slog.Info("loaded config file", "configFile", viper.ConfigFileUsed())
 	}
 }
+
+func execOp(op func(logger *slog.Logger) error) {
+	logger := config.NewLogger()
+	if err := op(logger); err != nil {
+		if logger != nil {
+			logger.Error("operation failed", "error", err)
+		}
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+}

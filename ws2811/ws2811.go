@@ -1,4 +1,4 @@
-package light
+package ws2811
 
 import (
 	"context"
@@ -108,7 +108,7 @@ func (ctrl *Controller) applyOptions(drvopt *ws281x.Option, opts ...Option) {
 	}
 }
 
-func (ctrl *Controller) Serve(ctx context.Context, rnd chan (map[int]metar.FlightCategory), opts ...Option) error {
+func (ctrl *Controller) Serve(ctx context.Context, src chan (map[int]metar.FlightCategory), opts ...Option) error {
 
 	drvopts := ws281x.DefaultOptions
 	ctrl.applyOptions(&drvopts, ctrl.DefaultOptions()...)
@@ -127,7 +127,7 @@ func (ctrl *Controller) Serve(ctx context.Context, rnd chan (map[int]metar.Fligh
 
 	for {
 		select {
-		case cats := <-rnd:
+		case cats := <-src:
 			if err := ctrl.Render(drv, cats); err != nil {
 				if l := ctrl.Logger; l != nil {
 					l.Error("render failure", "error", err)
