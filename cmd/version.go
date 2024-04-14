@@ -5,7 +5,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/andrewmostello/metar-ws281x/version"
+	"github.com/andrewmostello/metar-ws2811/version"
 )
 
 // versionCmd represents the version command

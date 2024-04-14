@@ -1,4 +1,4 @@
-module github.com/andrewmostello/metar-ws281x
+module github.com/andrewmostello/metar-ws2811
 
 go 1.22.0
 

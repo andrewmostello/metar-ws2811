@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/andrewmostello/metar-ws281x/metar"
+	"github.com/andrewmostello/metar-ws2811/metar"
 )
 
 func TestGetMETARs(t *testing.T) {

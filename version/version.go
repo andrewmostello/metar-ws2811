@@ -12,7 +12,7 @@ var BuildDate = "unset"
 var GitCommit = "unset"
 
 // UserAgent is a versioned user agent string to use for remote requests.
-var UserAgent = fmt.Sprintf("metar-ws281x/%s/go", Version)
+var UserAgent = fmt.Sprintf("metar-ws2811/%s/go", Version)
 
 // BuildInfo contains the version information of the last compilation.
 type BuildInfo struct {

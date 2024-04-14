@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/andrewmostello/metar-ws281x/config"
+	"github.com/andrewmostello/metar-ws2811/config"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -17,7 +17,7 @@ import (
 var cfgFile string
 
 var rootCmd = &cobra.Command{
-	Use:   "metar-ws281x",
+	Use:   "metar-ws2811",
 	Short: "METAR WS281x LED controller",
 	Long:  `METAR WS281x LED controller`,
 }
@@ -58,9 +58,9 @@ func init() {
 	// Here you will define your flags and configuration settings.
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", `Config file path. Default is to look for a file called "config" in /etc/metar-ws281x with an accepted extension.
+	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", `Config file path. Default is to look for a file called "config" in /etc/metar-ws2811 with an accepted extension.
 Can be a json, yaml, or toml file; use the appropriate extension on the config file.
-e.g. /etc/metar-ws281x/config.json`)
+e.g. /etc/metar-ws2811/config.json`)
 
 	// Logging options
 	config.AddLogFlags(rootCmd)
@@ -72,12 +72,12 @@ func Initialize() {
 		viper.SetConfigFile(cfgFile)
 	} else {
 		viper.AddConfigPath(".")
-		viper.AddConfigPath("/etc/metar-ws281x/")
+		viper.AddConfigPath("/etc/metar-ws2811/")
 		viper.SetConfigName("config")
 	}
 
 	// Config available as env vars, with _'s instead of .'s in a key path
-	viper.SetEnvPrefix("metar_ws281x")
+	viper.SetEnvPrefix("metar_ws2811")
 	replacer := strings.NewReplacer(".", "_")
 	viper.SetEnvKeyReplacer(replacer)
 	viper.AutomaticEnv()
