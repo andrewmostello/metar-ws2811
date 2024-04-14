@@ -15,7 +15,25 @@ func TestGetMETARs(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	out, err := c.GetMETARs(ctx, []string{"KJFK", "KBOS", "KFIT"})
+	ids := []string{
+		"KFIT",
+		"KECU",
+		"KRNM",
+		"KJCT",
+		"PATQ",
+		"PASM",
+		"KBUF",
+		"CZSJ",
+		"KFIT",
+		"KECU",
+		"KRNM",
+		"KJCT",
+		"PATQ",
+		"PASM",
+		"KBUF",
+	}
+
+	out, err := c.GetMETARs(ctx, ids...)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -23,6 +41,4 @@ func TestGetMETARs(t *testing.T) {
 	for k, v := range out {
 		t.Logf("%s: %+v", k, v.FlightCategory().Name())
 	}
-
-	t.Fail()
 }

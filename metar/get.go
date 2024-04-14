@@ -43,7 +43,11 @@ func (c Client) Do(r *http.Request) (*http.Response, error) {
 	return hc.Do(r)
 }
 
-func (c Client) GetMETARs(ctx context.Context, icaoIDs []string) (map[string]METAR, error) {
+func (c Client) GetMETARs(ctx context.Context, airportIDs ...string) (map[string]METAR, error) {
+
+	if len(airportIDs) == 0 {
+		return nil, fmt.Errorf("no airport identifiers specified")
+	}
 
 	u, err := c.Route("/metar")
 	if err != nil {
@@ -51,7 +55,7 @@ func (c Client) GetMETARs(ctx context.Context, icaoIDs []string) (map[string]MET
 	}
 
 	q := u.Query()
-	q.Set("ids", strings.Join(icaoIDs, ","))
+	q.Set("ids", strings.Join(airportIDs, ","))
 	q.Set("format", "json")
 	u.RawQuery = q.Encode()
 
