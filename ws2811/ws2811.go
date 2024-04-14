@@ -66,11 +66,21 @@ func RGBToColor(r int, g int, b int) uint32 {
 	return uint32(uint32(r)<<16 | uint32(g)<<8 | uint32(b))
 }
 
+func (ctrl *Controller) colors() map[metar.FlightCategory]RGB {
+	if v := ctrl.Colors; v != nil {
+		return v
+	}
+	return DefaultColors
+}
+
 func (ctrl *Controller) Render(drv *ws281x.WS2811, cats map[int]metar.FlightCategory) error {
+
+	colors := ctrl.colors()
 	leds := drv.Leds(0)
+
 	for i := 0; i < len(leds); i++ {
 		cat := cats[i]
-		rgb := ctrl.Colors[cat]
+		rgb := colors[cat]
 		leds[i] = rgb.ToColor()
 
 		if l := ctrl.Logger; l != nil {
