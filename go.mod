@@ -3,6 +3,7 @@ module github.com/andrewmostello/metar-ws2811
 go 1.22.0
 
 require (
+	github.com/oklog/oklog v0.3.2
 	github.com/rpi-ws281x/rpi-ws281x-go v1.0.10
 	github.com/spf13/cobra v1.8.0
 	github.com/spf13/viper v1.18.2
@@ -14,6 +15,7 @@ require (
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/magiconair/properties v1.8.7 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
+	github.com/oklog/run v1.1.0 // indirect
 	github.com/pelletier/go-toml/v2 v2.1.0 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/sagikazarmark/locafero v0.4.0 // indirect
