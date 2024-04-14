@@ -11,7 +11,7 @@ import (
 
 const (
 	DefaultBrightness = 128
-	DefaultLEDCounts  = 300
+	DefaultLEDCount   = 50
 	DefaultGPIOPin    = 18
 )
 
@@ -91,7 +91,7 @@ func (ctrl *Controller) DefaultOptions() []Option {
 	return []Option{
 		func(opt *ws281x.ChannelOption) {
 			opt.Brightness = DefaultBrightness
-			opt.LedCount = DefaultLEDCounts
+			opt.LedCount = DefaultLEDCount
 			opt.GpioPin = DefaultGPIOPin
 		},
 	}
