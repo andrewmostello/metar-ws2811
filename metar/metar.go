@@ -9,35 +9,35 @@ import (
 	"time"
 )
 
-type Conditions int
+type FlightCategory int
 
 const (
-	ConditionsUnknown Conditions = iota
-	ConditionsLIFR
-	ConditionsIFR
-	ConditionsMVFR
-	ConditionsVFR
+	FlightCategoryUnknown FlightCategory = iota
+	FlightCategoryLIFR
+	FlightCategoryIFR
+	FlightCategoryMVFR
+	FlightCategoryVFR
 )
 
-func (c Conditions) String() string {
+func (c FlightCategory) String() string {
 	return c.Name()
 }
 
-func (c Conditions) Name() string {
+func (c FlightCategory) Name() string {
 	switch c {
-	case ConditionsVFR:
+	case FlightCategoryVFR:
 		return "VFR"
-	case ConditionsMVFR:
+	case FlightCategoryMVFR:
 		return "Marginal VFR"
-	case ConditionsIFR:
+	case FlightCategoryIFR:
 		return "IFR"
-	case ConditionsLIFR:
+	case FlightCategoryLIFR:
 		return "Low IFR"
 	}
 	return "Unknown"
 }
 
-func (c Conditions) IsWorseThan(oth Conditions) bool {
+func (c FlightCategory) IsWorseThan(oth FlightCategory) bool {
 	return c < oth
 }
 
@@ -79,10 +79,10 @@ type METAR struct {
 	Clouds                []CloudLayer `json:"clouds"`
 }
 
-func (m METAR) Conditions() Conditions {
-	out := m.Visibility.Conditions()
+func (m METAR) FlightCategory() FlightCategory {
+	out := m.Visibility.FlightCategory()
 	for _, lyr := range m.Clouds {
-		c := lyr.Conditions()
+		c := lyr.FlightCategory()
 		if c.IsWorseThan(out) {
 			out = c
 		}
@@ -136,23 +136,23 @@ type CloudLayer struct {
 	Base  *float64   `json:"base"`
 }
 
-func (lyr CloudLayer) Conditions() Conditions {
+func (lyr CloudLayer) FlightCategory() FlightCategory {
 	if !lyr.Cover.IsCeiling() {
-		return ConditionsVFR
+		return FlightCategoryVFR
 	}
 	if lyr.Base == nil {
-		return ConditionsUnknown
+		return FlightCategoryUnknown
 	}
 	base := *lyr.Base
 	switch {
 	case base > 3000:
-		return ConditionsVFR
+		return FlightCategoryVFR
 	case base > 1000:
-		return ConditionsMVFR
+		return FlightCategoryMVFR
 	case base > 500:
-		return ConditionsIFR
+		return FlightCategoryIFR
 	}
-	return ConditionsLIFR
+	return FlightCategoryLIFR
 }
 
 type METARType string
@@ -212,15 +212,15 @@ func (v Visibility) String() string {
 	return vis
 }
 
-func (v Visibility) Conditions() Conditions {
+func (v Visibility) FlightCategory() FlightCategory {
 	if v.Visibility > 5 {
-		return ConditionsVFR
+		return FlightCategoryVFR
 	} else if v.Visibility >= 3 {
-		return ConditionsMVFR
+		return FlightCategoryMVFR
 	} else if v.Visibility >= 1 {
-		return ConditionsIFR
+		return FlightCategoryIFR
 	}
-	return ConditionsLIFR
+	return FlightCategoryLIFR
 }
 
 type Time time.Time

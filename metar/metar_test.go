@@ -393,17 +393,17 @@ func TestUnmarshalMETAR(t *testing.T) {
 	}
 }
 
-func TestMETARConditions(t *testing.T) {
+func TestMETARFlightCategory(t *testing.T) {
 	type fixture struct {
 		name string
 		wx   metar.METAR
-		exp  metar.Conditions
+		exp  metar.FlightCategory
 	}
 
 	fixtures := []fixture{
 		{
 			name: "KFIT",
-			exp:  metar.ConditionsVFR,
+			exp:  metar.FlightCategoryVFR,
 			wx: metar.METAR{
 				ID:              529708844,
 				ICAOID:          "KFIT",
@@ -452,7 +452,7 @@ func TestMETARConditions(t *testing.T) {
 		},
 		{
 			name: "KECU",
-			exp:  metar.ConditionsIFR,
+			exp:  metar.FlightCategoryIFR,
 			wx: metar.METAR{
 				ID:              529727590,
 				ICAOID:          "KECU",
@@ -501,7 +501,7 @@ func TestMETARConditions(t *testing.T) {
 		},
 		{
 			name: "KRNM",
-			exp:  metar.ConditionsLIFR,
+			exp:  metar.FlightCategoryLIFR,
 			wx: metar.METAR{
 				ID:              529728418,
 				ICAOID:          "KRNM",
@@ -550,7 +550,7 @@ func TestMETARConditions(t *testing.T) {
 		},
 		{
 			name: "KJCT",
-			exp:  metar.ConditionsMVFR,
+			exp:  metar.FlightCategoryMVFR,
 			wx: metar.METAR{
 				ID:              529708362,
 				ICAOID:          "KJCT",
@@ -599,7 +599,7 @@ func TestMETARConditions(t *testing.T) {
 		},
 		{
 			name: "PATQ",
-			exp:  metar.ConditionsMVFR,
+			exp:  metar.FlightCategoryMVFR,
 			wx: metar.METAR{
 				ID:              529741071,
 				ICAOID:          "PATQ",
@@ -648,7 +648,7 @@ func TestMETARConditions(t *testing.T) {
 		},
 		{
 			name: "PASM",
-			exp:  metar.ConditionsLIFR,
+			exp:  metar.FlightCategoryLIFR,
 			wx: metar.METAR{
 				ID:              529744489,
 				ICAOID:          "PASM",
@@ -697,7 +697,7 @@ func TestMETARConditions(t *testing.T) {
 		},
 		{
 			name: "KBUF",
-			exp:  metar.ConditionsVFR,
+			exp:  metar.FlightCategoryVFR,
 			wx: metar.METAR{
 				ID:              529733443,
 				ICAOID:          "KBUF",
@@ -760,7 +760,7 @@ func TestMETARConditions(t *testing.T) {
 
 	for _, f := range fixtures {
 		t.Run(f.name, func(t *testing.T) {
-			cnd := f.wx.Conditions()
+			cnd := f.wx.FlightCategory()
 			if cnd != f.exp {
 				t.Fatalf("expected %v, got %v", f.exp, cnd)
 			}
