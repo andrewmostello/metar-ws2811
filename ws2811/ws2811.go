@@ -114,6 +114,10 @@ func (ctrl *Controller) Serve(ctx context.Context, src chan (map[int]metar.Fligh
 	ctrl.applyOptions(&drvopts, ctrl.DefaultOptions()...)
 	ctrl.applyOptions(&drvopts, opts...)
 
+	if l := ctrl.Logger; l != nil {
+		l.Info("serving", "brightness", drvopts.Channels[0].Brightness, "ledCount", drvopts.Channels[0].LedCount, "gpioPin", drvopts.Channels[0].GpioPin)
+	}
+
 	drv, err := ws281x.MakeWS2811(&drvopts)
 	if err != nil {
 		return fmt.Errorf("failed to create driver: %w", err)
@@ -123,11 +127,20 @@ func (ctrl *Controller) Serve(ctx context.Context, src chan (map[int]metar.Fligh
 		return fmt.Errorf("failed to initialize: %w", err)
 	}
 
+	defer func() {
+		if l := ctrl.Logger; l != nil {
+			l.Info("stopped serving")
+		}
+	}()
+
 	defer drv.Fini()
 
 	for {
 		select {
 		case cats := <-src:
+			if l := ctrl.Logger; l != nil {
+				l.Debug("render", "categories", cats)
+			}
 			if err := ctrl.Render(drv, cats); err != nil {
 				if l := ctrl.Logger; l != nil {
 					l.Error("render failure", "error", err)
