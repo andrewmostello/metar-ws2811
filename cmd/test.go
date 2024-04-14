@@ -59,7 +59,7 @@ func next(last map[int]metar.FlightCategory) map[int]metar.FlightCategory {
 		case metar.FlightCategoryIFR:
 			next[i] = metar.FlightCategoryLIFR
 		case metar.FlightCategoryLIFR:
-			next[i] = metar.FlightCategoryVFR
+			next[i] = metar.FlightCategoryUnknown
 		}
 	}
 	return next
@@ -72,11 +72,21 @@ func testSource(ctx context.Context, logger *slog.Logger, delay time.Duration, s
 	}
 
 	nxt := map[int]metar.FlightCategory{
-		0: metar.FlightCategoryUnknown,
-		2: metar.FlightCategoryVFR,
-		4: metar.FlightCategoryMVFR,
-		5: metar.FlightCategoryIFR,
-		8: metar.FlightCategoryLIFR,
+		0:  metar.FlightCategoryUnknown,
+		2:  metar.FlightCategoryVFR,
+		4:  metar.FlightCategoryMVFR,
+		6:  metar.FlightCategoryIFR,
+		8:  metar.FlightCategoryLIFR,
+		10: metar.FlightCategoryUnknown,
+		12: metar.FlightCategoryVFR,
+		14: metar.FlightCategoryMVFR,
+		16: metar.FlightCategoryIFR,
+		18: metar.FlightCategoryLIFR,
+		20: metar.FlightCategoryUnknown,
+		22: metar.FlightCategoryVFR,
+		24: metar.FlightCategoryMVFR,
+		26: metar.FlightCategoryIFR,
+		28: metar.FlightCategoryLIFR,
 	}
 
 	tick := time.NewTicker(delay)
