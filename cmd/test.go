@@ -96,7 +96,8 @@ func testLEDs(logger *slog.Logger) error {
 					nxt = next(nxt)
 				case <-ctx.Done():
 					tick.Stop()
-					break
+					close(src)
+					return nil
 				}
 			}
 		},
