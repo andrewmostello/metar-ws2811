@@ -38,9 +38,9 @@ var (
 			Blue:  0,
 		},
 		metar.FlightCategoryLIFR: RGB{
-			Red:   125,
+			Red:   255,
 			Green: 0,
-			Blue:  125,
+			Blue:  255,
 		},
 	}
 )
