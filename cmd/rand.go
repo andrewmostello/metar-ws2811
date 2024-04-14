@@ -72,24 +72,30 @@ func randLEDs(logger *slog.Logger) error {
 				vec[i] = metar.FlightCategoryVFR
 			}
 
+			nxt := func() {
+				rgb := ws2811.RGB{
+					Red:   rand.Intn(256),
+					Green: rand.Intn(256),
+					Blue:  rand.Intn(256),
+				}
+				logger.Info("rendering", "color", rgb)
+				ctrl.Colors = map[metar.FlightCategory]ws2811.RGB{
+					metar.FlightCategoryUnknown: ws2811.RGB{
+						Red:   0,
+						Green: 0,
+						Blue:  0,
+					},
+					metar.FlightCategoryVFR: rgb,
+				}
+				src <- vec
+			}
+
+			nxt()
+
 			for {
 				select {
 				case <-tick.C:
-					rgb := ws2811.RGB{
-						Red:   rand.Intn(256),
-						Green: rand.Intn(256),
-						Blue:  rand.Intn(256),
-					}
-					logger.Info("rendering", "color", rgb)
-					ctrl.Colors = map[metar.FlightCategory]ws2811.RGB{
-						metar.FlightCategoryUnknown: ws2811.RGB{
-							Red:   0,
-							Green: 0,
-							Blue:  0,
-						},
-						metar.FlightCategoryVFR: rgb,
-					}
-					src <- vec
+					nxt()
 				case <-ctx.Done():
 					tick.Stop()
 					close(src)

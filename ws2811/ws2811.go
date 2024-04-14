@@ -16,6 +16,12 @@ const (
 )
 
 var (
+	Off = RGB{
+		Red:   0,
+		Green: 0,
+		Blue:  0,
+	}
+
 	DefaultColors = map[metar.FlightCategory]RGB{
 		metar.FlightCategoryUnknown: RGB{
 			Red:   0,
@@ -147,7 +153,7 @@ func (ctrl *Controller) Serve(ctx context.Context, src chan (map[int]metar.Fligh
 			l.Info("stopping")
 		}
 
-		if err := ctrl.Render(drv, map[int]metar.FlightCategory{}); err != nil {
+		if err := ctrl.setAllLEDs(ctx, drv, Off); err != nil {
 			if l := ctrl.Logger; l != nil {
 				l.Error("failed turning off LEDs", "error", err)
 			}
@@ -178,4 +184,54 @@ func (ctrl *Controller) Serve(ctx context.Context, src chan (map[int]metar.Fligh
 			return nil
 		}
 	}
+}
+
+func (ctrl *Controller) setAllLEDs(ctx context.Context, drv *ws281x.WS2811, color RGB) error {
+	leds := drv.Leds(0)
+
+	for i := 0; i < len(leds); i++ {
+		leds[i] = color.ToColor()
+
+		if l := ctrl.Logger; l != nil {
+			l.Debug("set color", "index", i, "color", leds[i])
+		}
+	}
+
+	if err := drv.Render(); err != nil {
+		return err
+	}
+
+	if err := drv.Wait(); err != nil {
+		if l := ctrl.Logger; l != nil {
+			l.Warn("wait failure", "error", err)
+		}
+	}
+
+	return nil
+}
+
+func (ctrl *Controller) SetAllLEDs(ctx context.Context, color RGB, opts ...Option) error {
+
+	drvopts := ws281x.DefaultOptions
+	ctrl.applyOptions(&drvopts, ctrl.DefaultOptions()...)
+	ctrl.applyOptions(&drvopts, opts...)
+
+	if l := ctrl.Logger; l != nil {
+		l.Info("setting all LEDs", "brightness", drvopts.Channels[0].Brightness, "ledCount", drvopts.Channels[0].LedCount, "gpioPin", drvopts.Channels[0].GpioPin)
+	}
+
+	drv, err := ws281x.MakeWS2811(&drvopts)
+	if err != nil {
+		return fmt.Errorf("failed to create driver: %w", err)
+	}
+
+	if err := drv.Init(); err != nil {
+		return fmt.Errorf("failed to initialize: %w", err)
+	}
+
+	defer func() {
+		drv.Fini()
+	}()
+
+	return ctrl.setAllLEDs(ctx, drv, color)
 }
