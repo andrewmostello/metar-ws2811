@@ -72,6 +72,10 @@ func (ctrl *Controller) Render(drv *ws281x.WS2811, cats map[int]metar.FlightCate
 		cat := cats[i]
 		rgb := ctrl.Colors[cat]
 		leds[i] = rgb.ToColor()
+
+		if l := ctrl.Logger; l != nil {
+			l.Debug("set color", "index", i, "color", leds[i])
+		}
 	}
 
 	if err := drv.Render(); err != nil {
