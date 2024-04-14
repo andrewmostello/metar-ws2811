@@ -28,13 +28,20 @@ func testLEDs(logger *slog.Logger) error {
 	ctrl := &ws2811.Controller{
 		Logger: logger,
 	}
+
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
 	dur := time.Second
 
 	src := make(chan (map[int]metar.FlightCategory))
-	go testSource(ctx, dur, src)
+	go testSource(ctx, logger, dur, src)
+
+	logger.Info("starting test", "duration", dur)
+
+	defer func() {
+		logger.Info("stopping test")
+	}()
 
 	return ctrl.Serve(ctx, src)
 }
@@ -58,7 +65,7 @@ func next(last map[int]metar.FlightCategory) map[int]metar.FlightCategory {
 	return next
 }
 
-func testSource(ctx context.Context, delay time.Duration, src chan (map[int]metar.FlightCategory)) {
+func testSource(ctx context.Context, logger *slog.Logger, delay time.Duration, src chan (map[int]metar.FlightCategory)) {
 
 	if delay <= 0 {
 		delay = time.Second
@@ -77,6 +84,7 @@ func testSource(ctx context.Context, delay time.Duration, src chan (map[int]meta
 	for {
 		select {
 		case <-tick.C:
+			logger.Info("rendering next", "next", nxt)
 			src <- nxt
 			nxt = next(nxt)
 		case <-ctx.Done():
