@@ -20,7 +20,7 @@ var randCmd = &cobra.Command{
 	Short: "Random LED colors",
 	Long:  `Run random colors across the LEDs`,
 	Run: func(cmd *cobra.Command, args []string) {
-		execOp(testLEDs)
+		execOp(randLEDs)
 	},
 }
 

@@ -15,7 +15,7 @@ var offCmd = &cobra.Command{
 	Short: "Turn off LED lights",
 	Long:  `Turn off all LEDs`,
 	Run: func(cmd *cobra.Command, args []string) {
-		execOp(testLEDs)
+		execOp(offLEDs)
 	},
 }
 
