@@ -9,17 +9,18 @@ import (
 	"time"
 )
 
-type Conditions string
+type Conditions int
 
 const (
-	ConditionsVFR  = "VFR"
-	ConditionsMVFR = "MVFR"
-	ConditionsIFR  = "IFR"
-	ConditionsLIFR = "LIFR"
+	ConditionsUnknown Conditions = iota
+	ConditionsLIFR
+	ConditionsIFR
+	ConditionsMVFR
+	ConditionsVFR
 )
 
 func (c Conditions) String() string {
-	return string(c)
+	return c.Name()
 }
 
 func (c Conditions) Name() string {
@@ -34,6 +35,10 @@ func (c Conditions) Name() string {
 		return "Low IFR"
 	}
 	return "Unknown"
+}
+
+func (c Conditions) IsWorseThan(oth Conditions) bool {
+	return c < oth
 }
 
 type METAR struct {
@@ -72,6 +77,17 @@ type METAR struct {
 	Prior                 float64      `json:"prior"`
 	Name                  string       `json:"name"`
 	Clouds                []CloudLayer `json:"clouds"`
+}
+
+func (m METAR) Conditions() Conditions {
+	out := m.Visibility.Conditions()
+	for _, lyr := range m.Clouds {
+		c := lyr.Conditions()
+		if c.IsWorseThan(out) {
+			out = c
+		}
+	}
+	return out
 }
 
 type CloudCover string
@@ -116,8 +132,27 @@ func (m CloudCover) Name() string {
 }
 
 type CloudLayer struct {
-	Cover string   `json:"cover"`
-	Base  *float64 `json:"base"`
+	Cover CloudCover `json:"cover"`
+	Base  *float64   `json:"base"`
+}
+
+func (lyr CloudLayer) Conditions() Conditions {
+	if !lyr.Cover.IsCeiling() {
+		return ConditionsVFR
+	}
+	if lyr.Base == nil {
+		return ConditionsUnknown
+	}
+	base := *lyr.Base
+	switch {
+	case base > 3000:
+		return ConditionsVFR
+	case base > 1000:
+		return ConditionsMVFR
+	case base > 500:
+		return ConditionsIFR
+	}
+	return ConditionsLIFR
 }
 
 type METARType string
