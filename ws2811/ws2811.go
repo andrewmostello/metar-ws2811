@@ -142,12 +142,19 @@ func (ctrl *Controller) Serve(ctx context.Context, src chan (map[int]metar.Fligh
 	}
 
 	defer func() {
+
+		if err := ctrl.Render(drv, map[int]metar.FlightCategory{}); err != nil {
+			if l := ctrl.Logger; l != nil {
+				l.Error("failed turning off LEDs", "error", err)
+			}
+		}
+
+		drv.Fini()
+
 		if l := ctrl.Logger; l != nil {
 			l.Info("stopped serving")
 		}
 	}()
-
-	defer drv.Fini()
 
 	for {
 		select {
