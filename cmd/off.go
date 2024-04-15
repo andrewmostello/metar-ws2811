@@ -23,10 +23,7 @@ func init() {
 	rootCmd.AddCommand(offCmd)
 }
 
-func offLEDs(logger *slog.Logger) error {
-	ctrl := &ws2811.Controller{
-		Logger: logger,
-	}
+func offLEDs(logger *slog.Logger, ctrl *ws2811.Controller) error {
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()

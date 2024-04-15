@@ -4,6 +4,7 @@ go 1.22.0
 
 require (
 	github.com/oklog/oklog v0.3.2
+	github.com/robfig/cron/v3 v3.0.1
 	github.com/rpi-ws281x/rpi-ws281x-go v1.0.10
 	github.com/spf13/cobra v1.8.0
 	github.com/spf13/viper v1.18.2

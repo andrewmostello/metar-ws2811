@@ -28,10 +28,7 @@ func init() {
 	rootCmd.AddCommand(randCmd)
 }
 
-func randLEDs(logger *slog.Logger) error {
-	ctrl := &ws2811.Controller{
-		Logger: logger,
-	}
+func randLEDs(logger *slog.Logger, ctrl *ws2811.Controller) error {
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()

@@ -64,8 +64,9 @@ func (rgb RGB) ToColor() uint32 {
 type Option func(*ws281x.ChannelOption)
 
 type Controller struct {
-	Logger *slog.Logger
-	Colors map[metar.FlightCategory]RGB
+	Logger  *slog.Logger
+	Colors  map[metar.FlightCategory]RGB
+	Options []Option
 }
 
 func RGBToColor(r int, g int, b int) uint32 {
@@ -128,11 +129,11 @@ func (ctrl *Controller) applyOptions(drvopt *ws281x.Option, opts ...Option) {
 	}
 }
 
-func (ctrl *Controller) Serve(ctx context.Context, src chan (map[int]metar.FlightCategory), opts ...Option) error {
+func (ctrl *Controller) Serve(ctx context.Context, src chan (map[int]metar.FlightCategory)) error {
 
 	drvopts := ws281x.DefaultOptions
 	ctrl.applyOptions(&drvopts, ctrl.DefaultOptions()...)
-	ctrl.applyOptions(&drvopts, opts...)
+	ctrl.applyOptions(&drvopts, ctrl.Options...)
 
 	if l := ctrl.Logger; l != nil {
 		l.Info("serving", "brightness", drvopts.Channels[0].Brightness, "ledCount", drvopts.Channels[0].LedCount, "gpioPin", drvopts.Channels[0].GpioPin)

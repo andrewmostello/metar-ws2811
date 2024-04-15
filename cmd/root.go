@@ -10,6 +10,8 @@ import (
 	"time"
 
 	"github.com/andrewmostello/metar-ws2811/config"
+	"github.com/andrewmostello/metar-ws2811/ws2811"
+	ws281x "github.com/rpi-ws281x/rpi-ws281x-go"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -64,6 +66,7 @@ e.g. /etc/metar-ws2811/config.json`)
 
 	// Logging options
 	config.AddLogFlags(rootCmd)
+	config.AddLEDFlags(rootCmd)
 }
 
 func Initialize() {
@@ -90,9 +93,23 @@ func Initialize() {
 	}
 }
 
-func execOp(op func(logger *slog.Logger) error) {
+func execOp(op func(logger *slog.Logger, ctrl *ws2811.Controller) error) {
 	logger := config.NewLogger()
-	if err := op(logger); err != nil {
+
+	ledcfg := config.GetLED()
+
+	ctrl := &ws2811.Controller{
+		Logger: logger,
+		Options: []ws2811.Option{
+			func(opt *ws281x.ChannelOption) {
+				opt.Brightness = ledcfg.Brightness
+				opt.LedCount = ledcfg.Count
+				opt.GpioPin = ledcfg.GPIOPin
+			},
+		},
+	}
+
+	if err := op(logger, ctrl); err != nil {
 		if logger != nil {
 			logger.Error("operation failed", "error", err)
 		}
