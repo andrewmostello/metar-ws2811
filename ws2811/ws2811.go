@@ -44,9 +44,9 @@ var (
 			Blue:  0,
 		},
 		metar.FlightCategoryLIFR: RGB{
-			Red:   150,
-			Green: 200,
-			Blue:  255,
+			Red:   125,
+			Green: 0,
+			Blue:  125,
 		},
 	}
 )
@@ -58,7 +58,7 @@ type RGB struct {
 }
 
 func (rgb RGB) ToColor() uint32 {
-	return uint32(uint32(rgb.Red)<<16 | uint32(rgb.Green)<<8 | uint32(rgb.Blue))
+	return uint32(uint32(rgb.Green)<<16 | uint32(rgb.Red)<<8 | uint32(rgb.Blue))
 }
 
 type Option func(*ws281x.ChannelOption)
