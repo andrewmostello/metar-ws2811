@@ -11,31 +11,37 @@ import (
 )
 
 type Log struct {
-	Format string
-	Level  string
+	Format    string
+	Level     string
+	AddSource bool
 }
 
 func GetLog() Log {
 	return Log{
-		Format: viper.GetString(cfgKeyLogFormat),
-		Level:  viper.GetString(cfgKeyLogLevel),
+		Format:    viper.GetString(cfgKeyLogFormat),
+		Level:     viper.GetString(cfgKeyLogLevel),
+		AddSource: viper.GetBool(cfgKeyLogAddSource),
 	}
 }
 
 const (
-	cfgKeyLogFormat = "log.format"
-	cfgKeyLogLevel  = "log.level"
+	cfgKeyLogFormat    = "log.format"
+	cfgKeyLogLevel     = "log.level"
+	cfgKeyLogAddSource = "log.add_source"
 )
 
 func AddLogFlags(cmd *cobra.Command) {
-	viper.SetDefault(cfgKeyLogFormat, "text")
-	viper.SetDefault(cfgKeyLogLevel, "warn")
+	flag := "log-format"
+	cmd.PersistentFlags().String(flag, "text", "Log format. Options are text and json.")
+	viper.BindPFlag(cfgKeyLogFormat, cmd.PersistentFlags().Lookup(flag))
 
-	cmd.PersistentFlags().String("log-format", "text", "Log format. Options are text and json. Default is text.")
-	viper.BindPFlag(cfgKeyLogFormat, cmd.PersistentFlags().Lookup("log-format"))
+	flag = "log-level"
+	cmd.PersistentFlags().String(flag, "warn", "Log Level. Options are error, warn, info, and debug.")
+	viper.BindPFlag(cfgKeyLogLevel, cmd.PersistentFlags().Lookup(flag))
 
-	cmd.PersistentFlags().String("log-level", "warn", "Log Level. Options are error, warn, info, and debug. Default is info.")
-	viper.BindPFlag(cfgKeyLogLevel, cmd.PersistentFlags().Lookup("log-level"))
+	flag = "log-add-source"
+	cmd.PersistentFlags().Bool(flag, false, "Add source to log output.")
+	viper.BindPFlag(cfgKeyLogAddSource, cmd.PersistentFlags().Lookup(flag))
 }
 
 func NewLogger() *slog.Logger {
@@ -43,7 +49,7 @@ func NewLogger() *slog.Logger {
 	cfg := GetLog()
 
 	opts := &slog.HandlerOptions{
-		AddSource: true,
+		AddSource: cfg.AddSource,
 		Level:     slog.LevelInfo,
 	}
 
