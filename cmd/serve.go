@@ -159,7 +159,7 @@ func refreshMETARs(ctx context.Context, logger *slog.Logger, cfg config.Serve, m
 			continue
 		}
 		fc := wx.FlightCategory()
-		logger.Info("METAR", "airport", id, "flightCategory", fc.Name(), "weather", wx.RawObservation)
+		logger.Info("METAR", "airport", id, "index", idx, "flightCategory", fc.Name(), "weather", wx.RawObservation)
 		fcs[idx] = fc
 	}
 
