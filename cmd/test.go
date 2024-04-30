@@ -57,7 +57,7 @@ func testLEDs(logger *slog.Logger, ctrl *ws2811.Controller, cfg config.LED) erro
 		)
 	}
 
-	src := make(chan (map[int]metar.FlightCategory))
+	src := make(chan (map[int]ws2811.RGB))
 
 	g.Add(
 		func() error {
@@ -65,23 +65,11 @@ func testLEDs(logger *slog.Logger, ctrl *ws2811.Controller, cfg config.LED) erro
 				dur = time.Second
 			}
 
-			nxt := map[int]metar.FlightCategory{
-				0:  metar.FlightCategoryUnknown,
-				1:  metar.FlightCategoryVFR,
-				2:  metar.FlightCategoryMVFR,
-				3:  metar.FlightCategoryIFR,
-				4:  metar.FlightCategoryLIFR,
-				5:  metar.FlightCategoryUnknown,
-				6:  metar.FlightCategoryVFR,
-				7:  metar.FlightCategoryMVFR,
-				8:  metar.FlightCategoryIFR,
-				9:  metar.FlightCategoryLIFR,
-				10: metar.FlightCategoryUnknown,
-				11: metar.FlightCategoryVFR,
-				12: metar.FlightCategoryMVFR,
-				13: metar.FlightCategoryIFR,
-				14: metar.FlightCategoryLIFR,
-				15: metar.FlightCategoryUnknown,
+			vec := make(map[int]metar.FlightCategory)
+			nxt := metar.FlightCategoryUnknown
+			for i := 0; i < cfg.Count; i++ {
+				vec[i] = nxt
+				nxt = next(nxt)
 			}
 
 			tick := time.NewTicker(dur)
@@ -89,8 +77,8 @@ func testLEDs(logger *slog.Logger, ctrl *ws2811.Controller, cfg config.LED) erro
 			for {
 				select {
 				case <-tick.C:
-					logger.Info("rendering next", "next", nxt)
-					src <- nxt
+					logger.Info("rendering next", "vec", vec)
+					src <- metar.FlightCategoryToRGB(nil, vec)
 					nxt = next(nxt)
 				case <-ctx.Done():
 					tick.Stop()
@@ -122,21 +110,26 @@ func testLEDs(logger *slog.Logger, ctrl *ws2811.Controller, cfg config.LED) erro
 	return g.Run()
 }
 
-func next(last map[int]metar.FlightCategory) map[int]metar.FlightCategory {
-	next := make(map[int]metar.FlightCategory)
+func nextVec(last map[int]metar.FlightCategory) map[int]metar.FlightCategory {
+	nxt := make(map[int]metar.FlightCategory)
 	for i, cat := range last {
-		switch cat {
-		case metar.FlightCategoryUnknown:
-			next[i] = metar.FlightCategoryVFR
-		case metar.FlightCategoryVFR:
-			next[i] = metar.FlightCategoryMVFR
-		case metar.FlightCategoryMVFR:
-			next[i] = metar.FlightCategoryIFR
-		case metar.FlightCategoryIFR:
-			next[i] = metar.FlightCategoryLIFR
-		case metar.FlightCategoryLIFR:
-			next[i] = metar.FlightCategoryUnknown
-		}
+		nxt[i] = next(cat)
 	}
-	return next
+	return nxt
+}
+
+func next(last metar.FlightCategory) metar.FlightCategory {
+	switch last {
+	case metar.FlightCategoryUnknown:
+		return metar.FlightCategoryVFR
+	case metar.FlightCategoryVFR:
+		return metar.FlightCategoryMVFR
+	case metar.FlightCategoryMVFR:
+		return metar.FlightCategoryIFR
+	case metar.FlightCategoryIFR:
+		return metar.FlightCategoryLIFR
+	case metar.FlightCategoryLIFR:
+		return metar.FlightCategoryUnknown
+	}
+	return metar.FlightCategoryUnknown
 }

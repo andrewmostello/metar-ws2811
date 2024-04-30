@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log/slog"
 
-	"github.com/andrewmostello/metar-ws2811/metar"
 	ws281x "github.com/rpi-ws281x/rpi-ws281x-go"
 )
 
@@ -20,34 +19,6 @@ var (
 		Red:   0,
 		Green: 0,
 		Blue:  0,
-	}
-
-	DefaultColors = map[metar.FlightCategory]RGB{
-		metar.FlightCategoryUnknown: RGB{
-			Red:   0,
-			Green: 0,
-			Blue:  0,
-		},
-		metar.FlightCategoryVFR: RGB{
-			Red:   0,
-			Green: 255,
-			Blue:  0,
-		},
-		metar.FlightCategoryMVFR: RGB{
-			Red:   0,
-			Green: 0,
-			Blue:  255,
-		},
-		metar.FlightCategoryIFR: RGB{
-			Red:   255,
-			Green: 0,
-			Blue:  0,
-		},
-		metar.FlightCategoryLIFR: RGB{
-			Red:   255,
-			Green: 0,
-			Blue:  255,
-		},
 	}
 )
 
@@ -65,7 +36,6 @@ type Option func(*ws281x.ChannelOption)
 
 type Controller struct {
 	Logger  *slog.Logger
-	Colors  map[metar.FlightCategory]RGB
 	Options []Option
 }
 
@@ -73,21 +43,12 @@ func RGBToColor(r int, g int, b int) uint32 {
 	return uint32(uint32(r)<<16 | uint32(g)<<8 | uint32(b))
 }
 
-func (ctrl *Controller) colors() map[metar.FlightCategory]RGB {
-	if v := ctrl.Colors; v != nil {
-		return v
-	}
-	return DefaultColors
-}
+func (ctrl *Controller) Render(drv *ws281x.WS2811, cats map[int]RGB) error {
 
-func (ctrl *Controller) Render(drv *ws281x.WS2811, cats map[int]metar.FlightCategory) error {
-
-	colors := ctrl.colors()
 	leds := drv.Leds(0)
 
 	for i := 0; i < len(leds); i++ {
-		cat := cats[i]
-		rgb := colors[cat]
+		rgb := cats[i]
 		leds[i] = rgb.ToColor()
 
 		if l := ctrl.Logger; l != nil {
@@ -129,7 +90,7 @@ func (ctrl *Controller) applyOptions(drvopt *ws281x.Option, opts ...Option) {
 	}
 }
 
-func (ctrl *Controller) Serve(ctx context.Context, src chan (map[int]metar.FlightCategory)) error {
+func (ctrl *Controller) Serve(ctx context.Context, src chan (map[int]RGB)) error {
 
 	drvopts := ws281x.DefaultOptions
 	ctrl.applyOptions(&drvopts, ctrl.DefaultOptions()...)
@@ -169,11 +130,11 @@ func (ctrl *Controller) Serve(ctx context.Context, src chan (map[int]metar.Fligh
 
 	for {
 		select {
-		case cats := <-src:
+		case colors := <-src:
 			if l := ctrl.Logger; l != nil {
-				l.Debug("render", "categories", cats)
+				l.Debug("render", "categories", colors)
 			}
-			if err := ctrl.Render(drv, cats); err != nil {
+			if err := ctrl.Render(drv, colors); err != nil {
 				if l := ctrl.Logger; l != nil {
 					l.Error("render failure", "error", err)
 				}

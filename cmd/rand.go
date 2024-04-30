@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"github.com/andrewmostello/metar-ws2811/config"
-	"github.com/andrewmostello/metar-ws2811/metar"
 	"github.com/andrewmostello/metar-ws2811/ws2811"
 	"github.com/oklog/oklog/pkg/group"
 	"github.com/spf13/cobra"
@@ -57,7 +56,7 @@ func randLEDs(logger *slog.Logger, ctrl *ws2811.Controller, cfg config.LED) erro
 		)
 	}
 
-	src := make(chan (map[int]metar.FlightCategory))
+	src := make(chan (map[int]ws2811.RGB))
 
 	g.Add(
 		func() error {
@@ -65,10 +64,7 @@ func randLEDs(logger *slog.Logger, ctrl *ws2811.Controller, cfg config.LED) erro
 
 			rand.New(rand.NewSource(time.Now().UnixNano()))
 
-			vec := make(map[int]metar.FlightCategory, cfg.Count)
-			for i := 0; i < cfg.Count; i++ {
-				vec[i] = metar.FlightCategoryVFR
-			}
+			vec := make(map[int]ws2811.RGB, cfg.Count)
 
 			nxt := func() {
 				rgb := ws2811.RGB{
@@ -76,15 +72,10 @@ func randLEDs(logger *slog.Logger, ctrl *ws2811.Controller, cfg config.LED) erro
 					Green: rand.Intn(256),
 					Blue:  rand.Intn(256),
 				}
-				logger.Info("rendering", "color", rgb)
-				ctrl.Colors = map[metar.FlightCategory]ws2811.RGB{
-					metar.FlightCategoryUnknown: ws2811.RGB{
-						Red:   0,
-						Green: 0,
-						Blue:  0,
-					},
-					metar.FlightCategoryVFR: rgb,
+				for i := 0; i < cfg.Count; i++ {
+					vec[i] = rgb
 				}
+				logger.Info("rendering", "color", rgb)
 				src <- vec
 			}
 

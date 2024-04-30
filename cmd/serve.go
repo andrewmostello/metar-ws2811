@@ -7,7 +7,6 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
 
 	"github.com/andrewmostello/metar-ws2811/config"
 	"github.com/andrewmostello/metar-ws2811/metar"
@@ -65,49 +64,25 @@ func serve(logger *slog.Logger, ctrl *ws2811.Controller, ledcfg config.LED) erro
 		)
 	}
 
-	leds := make(chan (map[int]metar.FlightCategory))
+	srv := &metar.ColorServer{
+		Logger:              logger,
+		AirportIDs:          cfg.AirportIDs,
+		LEDIndexByAirportID: cfg.LEDIndexes,
+		Timeout:             mcfg.Timeout,
+		Client: metar.Client{
+			BaseURL: mcfg.BaseURL,
+		},
+	}
+
+	leds := make(chan (map[int]ws2811.RGB))
 
 	g.Add(
 		func() error {
-
-			{
-				fcs, err := refreshMETARs(ctx, logger, cfg, mcfg)
-				if err != nil {
-					return err
-				}
-
-				leds <- fcs
-			}
-
-			for {
-				nxt := cfg.RefreshCron.Next(time.Now())
-
-				logger.Info("scheduled next refresh", "next", nxt)
-
-				t := time.NewTimer(time.Until(nxt))
-
-				select {
-				case <-t.C:
-					logger.Debug("refreshing")
-
-					fcs, err := refreshMETARs(ctx, logger, cfg, mcfg)
-					if err != nil {
-						logger.Error("failed refresh", "error", err)
-					}
-
-					leds <- fcs
-
-				case <-ctx.Done():
-					if !t.Stop() {
-						<-t.C
-					}
-					close(leds)
-					return nil
-				}
-			}
+			return srv.Serve(ctx, cfg.RefreshCron, leds)
 		},
 		func(err error) {
 			cancel()
+			close(leds)
 		},
 	)
 
@@ -120,48 +95,11 @@ func serve(logger *slog.Logger, ctrl *ws2811.Controller, ledcfg config.LED) erro
 		},
 	)
 
-	logger.Info("updating LEDs")
+	logger.Info("serving LEDs")
 
 	defer func() {
 		logger.Info("shutting down")
 	}()
 
 	return g.Run()
-}
-
-func refreshMETARs(ctx context.Context, logger *slog.Logger, cfg config.Serve, mcfg config.METAR) (map[int]metar.FlightCategory, error) {
-
-	to := 15 * time.Second
-	if v := mcfg.Timeout; v > 0 {
-		to = v
-	}
-
-	ctx, cancel := context.WithTimeout(ctx, to)
-	defer cancel()
-
-	clnt := metar.Client{
-		BaseURL: mcfg.BaseURL,
-	}
-
-	metars, err := clnt.GetMETARs(ctx, cfg.AirportIDs...)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get METARs: %w", err)
-	}
-
-	idxs := cfg.LEDIndexes
-
-	fcs := make(map[int]metar.FlightCategory, len(idxs))
-
-	for id, wx := range metars {
-		idx, ok := idxs[id]
-		if !ok {
-			logger.Warn("no LED index for airport", "airport", id)
-			continue
-		}
-		fc := wx.FlightCategory()
-		logger.Info("METAR", "airport", id, "index", idx, "flightCategory", fc.Name(), "weather", wx.RawObservation)
-		fcs[idx] = fc
-	}
-
-	return fcs, nil
 }
