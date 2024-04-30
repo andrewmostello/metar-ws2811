@@ -47,7 +47,7 @@ func serve(logger *slog.Logger, ctrl *ws2811.Controller) error {
 	var g group.Group
 	{
 		term := make(chan os.Signal, 1)
-		signal.Notify(term, os.Interrupt, syscall.SIGTERM)
+		signal.Notify(term, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
 		cancel := make(chan struct{})
 		g.Add(
 			func() error {
