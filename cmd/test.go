@@ -8,6 +8,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/andrewmostello/metar-ws2811/config"
 	"github.com/andrewmostello/metar-ws2811/metar"
 	"github.com/andrewmostello/metar-ws2811/ws2811"
 	"github.com/oklog/oklog/pkg/group"
@@ -28,7 +29,7 @@ func init() {
 	rootCmd.AddCommand(testCmd)
 }
 
-func testLEDs(logger *slog.Logger, ctrl *ws2811.Controller) error {
+func testLEDs(logger *slog.Logger, ctrl *ws2811.Controller, cfg config.LED) error {
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()

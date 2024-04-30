@@ -3,9 +3,8 @@ package cmd
 import (
 	"context"
 	"log/slog"
-	"time"
 
-	"github.com/andrewmostello/metar-ws2811/metar"
+	"github.com/andrewmostello/metar-ws2811/config"
 	"github.com/andrewmostello/metar-ws2811/ws2811"
 	"github.com/spf13/cobra"
 )
@@ -23,24 +22,17 @@ func init() {
 	rootCmd.AddCommand(offCmd)
 }
 
-func offLEDs(logger *slog.Logger, ctrl *ws2811.Controller) error {
+func offLEDs(logger *slog.Logger, ctrl *ws2811.Controller, cfg config.LED) error {
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	dur := 5 * time.Second
+	logger.Info("shutting off LEDs")
 
-	src := make(chan (map[int]metar.FlightCategory))
-	go func() {
-		src <- map[int]metar.FlightCategory{}
-		cancel()
-	}()
+	if err := ctrl.SetAllLEDs(ctx, ws2811.Off); err != nil {
+		logger.With("error", err).Error("failed to set LEDs")
+		return err
+	}
 
-	logger.Info("starting rand", "duration", dur)
-
-	defer func() {
-		logger.Info("stopping rand")
-	}()
-
-	return ctrl.Serve(ctx, src)
+	return nil
 }

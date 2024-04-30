@@ -93,7 +93,7 @@ func Initialize() {
 	}
 }
 
-func execOp(op func(logger *slog.Logger, ctrl *ws2811.Controller) error) {
+func execOp(op func(logger *slog.Logger, ctrl *ws2811.Controller, cfg config.LED) error) {
 	logger := config.NewLogger()
 
 	ledcfg := config.GetLED()
@@ -109,7 +109,7 @@ func execOp(op func(logger *slog.Logger, ctrl *ws2811.Controller) error) {
 		},
 	}
 
-	if err := op(logger, ctrl); err != nil {
+	if err := op(logger, ctrl, ledcfg); err != nil {
 		if logger != nil {
 			logger.Error("operation failed", "error", err)
 		}

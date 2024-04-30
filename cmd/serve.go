@@ -32,7 +32,7 @@ func init() {
 	rootCmd.AddCommand(serveCmd)
 }
 
-func serve(logger *slog.Logger, ctrl *ws2811.Controller) error {
+func serve(logger *slog.Logger, ctrl *ws2811.Controller, ledcfg config.LED) error {
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()

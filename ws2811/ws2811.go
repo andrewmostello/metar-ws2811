@@ -211,11 +211,11 @@ func (ctrl *Controller) setAllLEDs(ctx context.Context, drv *ws281x.WS2811, colo
 	return nil
 }
 
-func (ctrl *Controller) SetAllLEDs(ctx context.Context, color RGB, opts ...Option) error {
+func (ctrl *Controller) SetAllLEDs(ctx context.Context, color RGB) error {
 
 	drvopts := ws281x.DefaultOptions
 	ctrl.applyOptions(&drvopts, ctrl.DefaultOptions()...)
-	ctrl.applyOptions(&drvopts, opts...)
+	ctrl.applyOptions(&drvopts, ctrl.Options...)
 
 	if l := ctrl.Logger; l != nil {
 		l.Info("setting all LEDs", "brightness", drvopts.Channels[0].Brightness, "ledCount", drvopts.Channels[0].LedCount, "gpioPin", drvopts.Channels[0].GpioPin)

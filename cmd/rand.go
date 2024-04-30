@@ -9,6 +9,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/andrewmostello/metar-ws2811/config"
 	"github.com/andrewmostello/metar-ws2811/metar"
 	"github.com/andrewmostello/metar-ws2811/ws2811"
 	"github.com/oklog/oklog/pkg/group"
@@ -28,7 +29,7 @@ func init() {
 	rootCmd.AddCommand(randCmd)
 }
 
-func randLEDs(logger *slog.Logger, ctrl *ws2811.Controller) error {
+func randLEDs(logger *slog.Logger, ctrl *ws2811.Controller, cfg config.LED) error {
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -64,8 +65,8 @@ func randLEDs(logger *slog.Logger, ctrl *ws2811.Controller) error {
 
 			rand.New(rand.NewSource(time.Now().UnixNano()))
 
-			vec := make(map[int]metar.FlightCategory, ws2811.DefaultLEDCount)
-			for i := 0; i < ws2811.DefaultLEDCount; i++ {
+			vec := make(map[int]metar.FlightCategory, cfg.Count)
+			for i := 0; i < cfg.Count; i++ {
 				vec[i] = metar.FlightCategoryVFR
 			}
 
