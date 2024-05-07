@@ -21,18 +21,7 @@ var identifyCmd = &cobra.Command{
 	Short: "Flash an LED to identify it",
 	Long:  `Flash an LED to identify it`,
 	Run: func(cmd *cobra.Command, args []string) {
-		if len(args) != 1 {
-			fmt.Fprintf(os.Stderr, "requires index argument")
-			os.Exit(1)
-			return
-		}
-		index, err := strconv.Atoi(args[0])
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "invalid index: %v", err)
-			os.Exit(1)
-			return
-		}
-		execOp(flashLED(index))
+		execOp(flashLED(args))
 	},
 }
 
@@ -40,9 +29,18 @@ func init() {
 	rootCmd.AddCommand(identifyCmd)
 }
 
-func flashLED(index int) func(logger *slog.Logger, ctrl *ws2811.Controller, cfg config.LED) error {
+func flashLED(args []string) func(logger *slog.Logger, ctrl *ws2811.Controller, cfg config.LED) error {
 
 	return func(logger *slog.Logger, ctrl *ws2811.Controller, cfg config.LED) error {
+
+		if len(args) != 1 {
+			return fmt.Errorf("requires index argument")
+		}
+
+		index, err := strconv.Atoi(args[0])
+		if err != nil {
+			return fmt.Errorf("invalid index: %v\n", err)
+		}
 
 		if index < 0 {
 			return fmt.Errorf("index must be positive : %d", index)
