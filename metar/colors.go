@@ -134,6 +134,15 @@ func (srv *ColorServer) Serve(ctx context.Context, scd cron.Schedule, output cha
 	}()
 
 	for {
+		fcs, err := srv.GetMETARs(ctx)
+		if err != nil {
+			srv.log(func(l *slog.Logger) {
+				l.Error("failed refresh", "error", err)
+			})
+		}
+
+		output <- srv.FlightCategoryToRGB(fcs)
+
 		nxt := scd.Next(time.Now())
 
 		srv.log(func(l *slog.Logger) {
@@ -144,15 +153,7 @@ func (srv *ColorServer) Serve(ctx context.Context, scd cron.Schedule, output cha
 
 		select {
 		case <-t.C:
-
-			fcs, err := srv.GetMETARs(ctx)
-			if err != nil {
-				srv.log(func(l *slog.Logger) {
-					l.Error("failed refresh", "error", err)
-				})
-			}
-
-			output <- srv.FlightCategoryToRGB(fcs)
+			continue
 
 		case <-ctx.Done():
 			srv.log(func(l *slog.Logger) {
