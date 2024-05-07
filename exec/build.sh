@@ -50,7 +50,7 @@ pkg_version="${pkg}/version"
 
 go build -ldflags "-X '${pkg_version}.Version=${version}' \
                    -X '${pkg_version}.BuildDate=${build_date}' \
-                   -X '${pkg_version}.GitCommit=${git_commit}' \
+                   -X '${pkg_version}.GitCommit=${git_commit}'" \
          -o "${build_path}/metar-ws2811" \
          ./main.go
 
