@@ -38,7 +38,7 @@ func TestUnmarshalMETAR(t *testing.T) {
 				},
 				WindSpeed: 10,
 				WindGust:  15,
-				Visibility: metar.Visibility{
+				Visibility: &metar.Visibility{
 					Visibility:  10,
 					GreaterThan: true,
 				},
@@ -89,7 +89,7 @@ func TestUnmarshalMETAR(t *testing.T) {
 				},
 				WindSpeed: 9,
 				WindGust:  16,
-				Visibility: metar.Visibility{
+				Visibility: &metar.Visibility{
 					Visibility:  10,
 					GreaterThan: true,
 				},
@@ -140,7 +140,7 @@ func TestUnmarshalMETAR(t *testing.T) {
 				},
 				WindSpeed: 0,
 				WindGust:  0,
-				Visibility: metar.Visibility{
+				Visibility: &metar.Visibility{
 					Visibility:  0.25,
 					GreaterThan: false,
 				},
@@ -191,7 +191,7 @@ func TestUnmarshalMETAR(t *testing.T) {
 				},
 				WindSpeed: 7,
 				WindGust:  0,
-				Visibility: metar.Visibility{
+				Visibility: &metar.Visibility{
 					Visibility:  10,
 					GreaterThan: true,
 				},
@@ -242,7 +242,7 @@ func TestUnmarshalMETAR(t *testing.T) {
 				},
 				WindSpeed: 15,
 				WindGust:  0,
-				Visibility: metar.Visibility{
+				Visibility: &metar.Visibility{
 					Visibility:  3,
 					GreaterThan: false,
 				},
@@ -293,7 +293,7 @@ func TestUnmarshalMETAR(t *testing.T) {
 				},
 				WindSpeed: 4,
 				WindGust:  0,
-				Visibility: metar.Visibility{
+				Visibility: &metar.Visibility{
 					Visibility:  0.25,
 					GreaterThan: false,
 				},
@@ -344,7 +344,7 @@ func TestUnmarshalMETAR(t *testing.T) {
 				},
 				WindSpeed: 9,
 				WindGust:  0,
-				Visibility: metar.Visibility{
+				Visibility: &metar.Visibility{
 					Visibility:  10,
 					GreaterThan: true,
 				},
@@ -407,7 +407,7 @@ func TestUnmarshalMETAR(t *testing.T) {
 				},
 				WindSpeed: 2,
 				WindGust:  0,
-				Visibility: metar.Visibility{
+				Visibility: &metar.Visibility{
 					Visibility:  9,
 					GreaterThan: false,
 				},
@@ -442,6 +442,54 @@ func TestUnmarshalMETAR(t *testing.T) {
 					{
 						Cover: "OVC",
 						Base:  floatPtr(1500),
+					},
+				},
+			},
+		},
+		{
+			name: "KHZL",
+			json: `{"metar_id":577157121,"icaoId":"KHZL","receiptTime":"2024-07-08 23:18:10","obsTime":1720480500,"reportTime":"2024-07-08 23:15:00","temp":28,"dewp":18,"wdir":0,"wspd":0,"wgst":null,"visib":null,"altim":1018.7,"slp":null,"qcField":134,"wxString":null,"presTend":null,"maxT":null,"minT":null,"maxT24":null,"minT24":null,"precip":null,"pcp3hr":null,"pcp6hr":null,"pcp24hr":null,"snow":null,"vertVis":null,"metarType":"METAR","rawOb":"KHZL 082315Z AUTO 00000KT CLR 28/18 A3008 RMK AO2 PWINO","mostRecent":1,"lat":40.9845,"lon":-75.9901,"elev":481,"prior":5,"name":"Hazleton Muni, PA, US","clouds":[{"cover":"CLR","base":null}]}`,
+			exp: metar.METAR{
+				ID:              577157121,
+				ICAOID:          "KHZL",
+				ReceiptTime:     metar.Time(time.Date(2024, 7, 8, 23, 18, 10, 0, time.UTC)),
+				ObservationTime: metar.Time(time.Unix(1720480500, 0)),
+				ReportTime:      metar.Time(time.Date(2024, 7, 8, 23, 15, 0, 0, time.UTC)),
+				Temperature:     28,
+				Dewpoint:        10,
+				WindDirection: metar.WindDirection{
+					From: 0,
+				},
+				WindSpeed:             0,
+				WindGust:              0,
+				Visibility:            nil,
+				Altimeter:             1018.7,
+				SeaLevelPressure:      0,
+				QCField:               134,
+				WxString:              "",
+				PressureTendency:      nil,
+				MaxTemperature:        nil,
+				MinTemperature:        nil,
+				MaxTemperature24Hours: nil,
+				MinTemperature24Hours: nil,
+				Precipitation:         nil,
+				Precipitation3Hour:    nil,
+				Precipitation6Hour:    nil,
+				Precipitation24Hour:   nil,
+				Snow:                  nil,
+				VerticalVisibility:    nil,
+				MetarType:             "METAR",
+				RawObservation:        "KHZL 082315Z AUTO 00000KT CLR 28/18 A3008 RMK AO2 PWINO",
+				MostRecent:            1,
+				Latitude:              40.9845,
+				Longitude:             -75.9901,
+				Elevation:             481,
+				Prior:                 5,
+				Name:                  "Hazleton Muni, PA, US",
+				Clouds: []metar.CloudLayer{
+					{
+						Cover: "CLR",
+						Base:  nil,
 					},
 				},
 			},
@@ -501,7 +549,7 @@ func TestMETARFlightCategory(t *testing.T) {
 				},
 				WindSpeed: 10,
 				WindGust:  15,
-				Visibility: metar.Visibility{
+				Visibility: &metar.Visibility{
 					Visibility:  10,
 					GreaterThan: true,
 				},
@@ -552,7 +600,7 @@ func TestMETARFlightCategory(t *testing.T) {
 				},
 				WindSpeed: 9,
 				WindGust:  16,
-				Visibility: metar.Visibility{
+				Visibility: &metar.Visibility{
 					Visibility:  10,
 					GreaterThan: true,
 				},
@@ -603,7 +651,7 @@ func TestMETARFlightCategory(t *testing.T) {
 				},
 				WindSpeed: 0,
 				WindGust:  0,
-				Visibility: metar.Visibility{
+				Visibility: &metar.Visibility{
 					Visibility:  0.25,
 					GreaterThan: false,
 				},
@@ -654,7 +702,7 @@ func TestMETARFlightCategory(t *testing.T) {
 				},
 				WindSpeed: 7,
 				WindGust:  0,
-				Visibility: metar.Visibility{
+				Visibility: &metar.Visibility{
 					Visibility:  10,
 					GreaterThan: true,
 				},
@@ -705,7 +753,7 @@ func TestMETARFlightCategory(t *testing.T) {
 				},
 				WindSpeed: 15,
 				WindGust:  0,
-				Visibility: metar.Visibility{
+				Visibility: &metar.Visibility{
 					Visibility:  3,
 					GreaterThan: false,
 				},
@@ -756,7 +804,7 @@ func TestMETARFlightCategory(t *testing.T) {
 				},
 				WindSpeed: 4,
 				WindGust:  0,
-				Visibility: metar.Visibility{
+				Visibility: &metar.Visibility{
 					Visibility:  0.25,
 					GreaterThan: false,
 				},
@@ -807,7 +855,7 @@ func TestMETARFlightCategory(t *testing.T) {
 				},
 				WindSpeed: 9,
 				WindGust:  0,
-				Visibility: metar.Visibility{
+				Visibility: &metar.Visibility{
 					Visibility:  10,
 					GreaterThan: true,
 				},

@@ -52,7 +52,7 @@ type METAR struct {
 	WindDirection         WindDirection `json:"wdir"`
 	WindSpeed             float64       `json:"wspd"`
 	WindGust              float64       `json:"wgst"`
-	Visibility            Visibility    `json:"visib"`
+	Visibility            *Visibility   `json:"visib"`
 	Altimeter             float64       `json:"altim"`
 	SeaLevelPressure      float64       `json:"slp"`
 	QCField               float64       `json:"qcField"`
@@ -80,7 +80,11 @@ type METAR struct {
 }
 
 func (m METAR) FlightCategory() FlightCategory {
-	out := m.Visibility.FlightCategory()
+	vis := m.Visibility
+	if vis == nil {
+		return FlightCategoryUnknown
+	}
+	out := vis.FlightCategory()
 	for _, lyr := range m.Clouds {
 		c := lyr.FlightCategory()
 		if c.IsWorseThan(out) {
