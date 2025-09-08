@@ -251,7 +251,7 @@ func (t *Time) UnmarshalJSON(b []byte) error {
 	if s == "" {
 		return nil
 	}
-	tt, err := time.Parse("2006-01-02 15:04:05", s)
+	tt, err := time.Parse(time.RFC3339Nano, s)
 	if err != nil {
 		return err
 	}
