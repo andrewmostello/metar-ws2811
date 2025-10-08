@@ -139,9 +139,10 @@ func (srv *ColorServer) Serve(ctx context.Context, scd cron.Schedule, output cha
 			srv.log(func(l *slog.Logger) {
 				l.Error("failed refresh", "error", err)
 			})
+		} else {
+			// don't update output if there was an error
+			output <- srv.FlightCategoryToRGB(fcs)
 		}
-
-		output <- srv.FlightCategoryToRGB(fcs)
 
 		nxt := scd.Next(time.Now())
 
